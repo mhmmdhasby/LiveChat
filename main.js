@@ -1,17 +1,17 @@
 // 1. Impor module yang diperlukan dari firebase dan firestore
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"
 import {
-    getFirestore,
-    collection,
-    addDoc,
-    query,
-    orderBy,
-    onSnapshot,
-    serverTimestamp,
-    doc,
-    updateDoc,
-    deleteDoc,
-    increment
+  getFirestore,
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  onSnapshot,
+  serverTimestamp,
+  doc,
+  updateDoc,
+  deleteDoc,
+  increment
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
 
 // 2. Konfigurasi Firebase
@@ -27,4 +27,30 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
-const messageCollection = collection(db,"messages")
+const messageCollection = collection(db, "messages")
+
+//.menentukan elemen elemen DOM yang diperlukan
+const chatForm = document.getElementById("chat-form")
+const usernameInput= document.getElementById("username")
+const messagesInput = document.getElementById("message")
+const chatBox = document.getElementById("chat-box")
+
+chatForm.addEventListener("submit",async(event)=>{
+  event.preventDefault()
+  
+  const username = usernameInput.value.trim()
+  const message = MessageInput.value.trim()
+  
+  if (username&&message) {
+    try {
+      await addDoc(messagesCollection,{
+        username: username,
+        message: message,
+        waktu: serverTimestamp()
+      })
+      MessageInput.value=""
+    } catch (error) {
+      console.log("Gagal mengirim pesan", error)
+    }
+  }
+})
