@@ -165,102 +165,6 @@ onSnapshot(queryPesan, (cuplikan) => {
     
     // Auto scroll ke pesan paling bawah
     chatBox.scrollTop = chatBox.scrollHeight
-})// ==================================================
-// 🔊 SUARA NOTIFIKASI PESAN & UNLOCK AUDIO
-// ==================================================
-
-const suaraPesanMasuk = new Audio("/wukwuk.mp3")
-suaraPesanMasuk.preload = "auto"
-
-let audioDiizinkan = false
-let pertamaKali = true
-
-// Buka kunci (unlock) audio saat pengguna pertama kali berinteraksi dengan halaman
-function unlockAudio() {
-    if (audioDiizinkan) return
-    
-    // Putar suara pelan lalu pause untuk memancing izin dari browser
-    suaraPesanMasuk.play().then(() => {
-        suaraPesanMasuk.pause()
-        suaraPesanMasuk.currentTime = 0
-        audioDiizinkan = true
-        console.log("Audio berhasil di-unlock!")
-    }).catch(() => {
-        // Abaikan error unlock awal jika belum diizinkan
-    })
-    
-    // Hapus event listener setelah di-unlock
-    window.removeEventListener("click", unlockAudio)
-    window.removeEventListener("keydown", unlockAudio)
-}
-
-window.addEventListener("click", unlockAudio)
-window.addEventListener("keydown", unlockAudio)
-
-// Fungsi pemutar suara notifikasi yang aman
-function mainkanSuaraNotifikasi() {
-    // Clone node agar jika ada pesan masuk bersamaan, suara tidak terdistorsi/terputus
-    const suara = suaraPesanMasuk.cloneNode()
-    suara.play().catch((error) => {
-        console.log("Notifikasi suara terhalang kebijakan browser:", error)
-    })
-}
-
-// ==================================================
-// REALTIME PESAN
-// ==================================================
-
-const queryPesan = query(
-    messagesCollection,
-    orderBy("waktu", "asc")
-)
-
-onSnapshot(queryPesan, (cuplikan) => {
-    
-    // 🔊 PERIKSA PESAN BARU UNTUK NOTIFIKASI
-    if (!pertamaKali) {
-        cuplikan.docChanges().forEach((perubahan) => {
-            // Hanya proses pesan yang benar-benar baru masuk
-            if (perubahan.type === "added") {
-                const data = perubahan.doc.data()
-                
-                // Jangan berbunyi jika pesan dikirim oleh browser/user ini
-                if (data.idBrowser !== idBrowserSekarang) {
-                    mainkanSuaraNotifikasi()
-                }
-            }
-        })
-    }
-    
-    // Setel flag pertamaKali setelah pemuatan data awal selesai
-    pertamaKali = false
-    
-    // Render ulang seluruh pesan ke UI
-    chatBox.innerHTML = ""
-    
-    cuplikan.forEach((dokumen) => {
-        const data = dokumen.data()
-        
-        if (!data.waktu) return
-        
-        const waktu = data.waktu.toDate().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit"
-        })
-        
-        const sendiri = data.idBrowser === idBrowserSekarang
-        
-        renderPesan(
-            data.username,
-            data.message,
-            waktu,
-            data.tipe,
-            sendiri
-        )
-    })
-    
-    // Auto scroll ke pesan paling bawah
-    chatBox.scrollTop = chatBox.scrollHeight
 })
 // ==================================================
 // USERNAME
@@ -584,14 +488,7 @@ chatForm.addEventListener(
 // REALTIME PESAN
 // ==================================================
 
-const queryPesan =
-    query(
-        messagesCollection,
-        orderBy(
-            "waktu",
-            "asc"
-        )
-    )
+
 
 onSnapshot(
     queryPesan,
